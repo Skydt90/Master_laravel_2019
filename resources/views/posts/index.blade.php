@@ -58,7 +58,7 @@
             </form>
         </p>
     @empty
-        <p>No blog posts yet!</p>
+        <p>No posts yet!</p>
     @endforelse    
 @endsection
 

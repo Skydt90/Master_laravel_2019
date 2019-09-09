@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\DB;
 class PostController extends Controller
 {
     
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         //return view('posts.index', ['posts' => BlogPost::all()]);
@@ -34,7 +40,8 @@ class PostController extends Controller
 
     public function show($id)
     {
-        return view('posts.show')->with('post', BlogPost::with('comments')->findOrFail($id)); // ['post' => BlogPost::findOrFail($id)]);
+        return view('posts.show')->with('post', BlogPost::with('comments')->findOrFail($id));
+         // ['post' => BlogPost::findOrFail($id)]);
     }
 
 

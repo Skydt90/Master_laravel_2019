@@ -14,6 +14,7 @@ class PostTest extends TestCase
 
     public function testNoBlogPostsWhenDBEmpty()
     {
+        $this->actingAs($this->user());
         $response = $this->get('/post');
         $response->assertSeeText('No posts yet!');
     }
@@ -21,14 +22,13 @@ class PostTest extends TestCase
     public function testSee1BlogPostWhenThereIsOneWithComment()
     {
         // Arrange
-        $post = $this->createDummyBlogPost();
+        $this->createDummyBlogPost();
 
         // Act
-        $response = $this->get('/post');
+        $response = $this->actingAs($this->user())->get('/post');
 
         // Assert
         $response->assertSeeText('Test Post');
-        $response->assertSeeText('No Comments Yet');
         
         $this->assertDatabaseHas('blog_posts', [
             'title' => 'Test Post'
@@ -43,7 +43,7 @@ class PostTest extends TestCase
         factory(Comment::class, 4)->create(['blog_post_id' => $post->id]);
 
          // Act
-         $response = $this->get('/post');
+         $response = $this->actingAs($this->user())->get('/post');
          $response->assertSeeText('4');
     }
 
@@ -55,7 +55,8 @@ class PostTest extends TestCase
             'content' => 'Some valid content for the post.'
         ];
 
-        $this->post('/post', $params)
+        $this->actingAs($this->user())
+            ->post('/post', $params)
             ->assertStatus(302) // redirect status
             ->assertSessionHas('success');
 
@@ -69,9 +70,10 @@ class PostTest extends TestCase
             'content' => 'x'
         ];
 
-        $this->post('/post', $params)
-        ->assertStatus(302)     // redirect status
-        ->assertSessionHas('errors');
+        $this->actingAs($this->user())
+            ->post('/post', $params)
+            ->assertStatus(302)     // redirect status
+            ->assertSessionHas('errors');
 
         $messages = session('errors')->getMessages();
         $this->assertEquals($messages['title'][0], 'The title must be at least 5 characters.');
@@ -90,9 +92,10 @@ class PostTest extends TestCase
             'content' => 'some new content for testing'
         ];
 
-        $this->put("/post/{$post->id}", $params)
-        ->assertStatus(302)     // redirect status
-        ->assertSessionHas('success');
+        $this->actingAs($this->user())
+            ->put("/post/{$post->id}", $params)
+            ->assertStatus(302)     // redirect status
+            ->assertSessionHas('success');
 
         $this->assertEquals(session('success'), 'Post was updated successfully!');
 
@@ -111,7 +114,8 @@ class PostTest extends TestCase
         
         $this->assertDatabaseHas('blog_posts', $post->toArray());
 
-        $this->delete("/post/{$post->id}")
+        $this->actingAs($this->user())
+            ->delete("/post/{$post->id}")
             ->assertStatus(302)     // redirect status
             ->assertSessionHas('success');
 

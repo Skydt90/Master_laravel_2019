@@ -11,7 +11,8 @@
 |
 */
 
-Route::get('/', 'HomeController@home')->name('home');
+Route::get('/', 'HomeController@home')->name('home'); //->middleWare('auth');
 Route::get('/contact', 'HomeController@contact')->name('contact');
-Route::resource('post', 'PostController');
+Route::resource('post', 'PostController'); //->middleWare('auth');
 
+Auth::routes();
