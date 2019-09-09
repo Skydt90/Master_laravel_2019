@@ -12,7 +12,7 @@ $factory->define(BlogPost::class, function (Faker $faker) {
     ];
 });
 
-// second param is name beig called by PostTest
+// second param is name being called by PostTest
 $factory->state(BlogPost::class, 'test-post', function(Faker $faker) {
     return [
         'title' => 'Test Post',
