@@ -8,6 +8,6 @@ class Author extends Model
 {
     public function profile()
     {
-        return $this->hasOne('App\Profile');
+        return $this->hasOne(Profile::class);
     }
 }
