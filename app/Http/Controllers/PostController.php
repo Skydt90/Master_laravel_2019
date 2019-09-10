@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\BlogPost;
 use App\Http\Requests\StorePost;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -14,6 +11,7 @@ class PostController extends Controller
 
     public function __construct()
     {
+        //$this->middleware('auth', ['only' => 'index']);
         $this->middleware('auth');
     }
 
@@ -57,7 +55,7 @@ class PostController extends Controller
             abort(403, "You can't edit this blog post!");
         } */
 
-        $this->authorize('post.update', $post);
+        $this->authorize('update', $post);
         
         return view('posts.edit')->with('post', $post);
     }
@@ -77,7 +75,7 @@ class PostController extends Controller
     
     public function destroy(BlogPost $post)
     {
-        $this->authorize('post.delete', $post);
+        $this->authorize('delete', $post);
 
         if(BlogPost::destroy($post->id)) {
             session()->flash('success', 'Post was deleted!');
