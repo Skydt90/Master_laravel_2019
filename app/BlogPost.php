@@ -9,11 +9,18 @@ class BlogPost extends Model
 {
     use SoftDeletes;
 
+    //fields able to be filled by eleqouent create method
     protected $fillable = ['title', 'content'];
 
+    //relationship setup
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     //subscribe to events from HasEvent.php in model.

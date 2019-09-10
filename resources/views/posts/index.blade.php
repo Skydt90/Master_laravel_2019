@@ -41,6 +41,10 @@
             <h3>
                 <a href="{{ route('post.show', ['post' => $post->id]) }}">{{ $post->title }}</a>
             </h3>
+            <p class="text-muted">
+                <strong>Added:</strong> {{ $post->created_at->diffForHumans() }}<br>
+                <strong>By:</strong> {{ $post->user->name }}
+            </p>
             @if($post->comments_count)
                 <p>{{ $post->comments_count }} comments</p>
             @else

@@ -25,6 +25,19 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+         //this will be called before any other gate check
+         Gate::before(function($user, $ability) {
+
+            //if user is admin he will be able to perform whats in the array
+            if($user->is_admin && in_array($ability, ['post.update'])) {
+                return true;
+            }
+        });
+
+        // like routes, the resource call will group all funtions together in the post policy class
+        Gate::resource('post', 'App\Policies\BlogPostPolicy');
+
+        /* Gate::define('post.update', 'App\Policies\BlogPostPolicy@update');
+        Gate::define('post.delete', 'App\Policies\BlogPostPolicy@delete'); */
     }
 }

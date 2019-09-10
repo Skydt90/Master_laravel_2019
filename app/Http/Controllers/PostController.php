@@ -6,6 +6,7 @@ use App\BlogPost;
 use App\Http\Requests\StorePost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -19,19 +20,6 @@ class PostController extends Controller
     public function index()
     {
         //return view('posts.index', ['posts' => BlogPost::all()]);
-        /* DB::connection()->enableQueryLog();
-
-        $posts = BlogPost::with('comments')->get(); //all();
-
-        foreach($posts as $post)
-        {
-            foreach($post->comments as $comment)
-            {
-                echo $comment->content;
-            }
-        }
-
-        dd(DB::getQueryLog()); */
 
         // comments count for each bp
         return view('posts.index')->with('posts', BlogPost::withCount('comments')->get());
@@ -62,12 +50,18 @@ class PostController extends Controller
     }
 
 
-    public function edit($id)
+    public function edit(BlogPost $post)
     {
-        return view('posts.edit')->with('post', BlogPost::findOrFail($id));
+        //use gate closure to deny editing of posts not created by user
+        /* if(Gate::denies('update-post', $post)) {
+            abort(403, "You can't edit this blog post!");
+        } */
+
+        $this->authorize('post.update', $post);
+        
+        return view('posts.edit')->with('post', $post);
     }
-
-
+        
     public function update(StorePost $request, $id)
     {
         $post = BlogPost::findOrFail($id);
@@ -81,9 +75,11 @@ class PostController extends Controller
     }
 
     
-    public function destroy($id)
+    public function destroy(BlogPost $post)
     {
-        if(BlogPost::destroy($id)) {
+        $this->authorize('post.delete', $post);
+
+        if(BlogPost::destroy($post->id)) {
             session()->flash('success', 'Post was deleted!');
         }
         return redirect()->route('post.index');
