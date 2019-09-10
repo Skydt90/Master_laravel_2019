@@ -1,8 +1,6 @@
 <?php
 
-use App\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,8 +11,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // user seeds
-        factory(User::class)->states('john-doe')->create();
-        factory(User::class, 20)->create();
+
+        if($this->command->confirm('Do you want to refresh the database?')) {
+            $this->command->call('migrate:refresh');
+            $this->command->info('Database refreshed successfully!');
+        } else {
+            return;
+        }
+
+        $this->call([
+            UsersTableSeeder::class, 
+            BlogPostsTableSeeder::class,
+            CommentsTableSeeder::class, 
+        ]);
     }
 }
