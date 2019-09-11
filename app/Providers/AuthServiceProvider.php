@@ -26,11 +26,15 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        Gate::define('home.secret', function($user) {
+            return $user->is_admin;
+        });
+
          //this will be called before any other gate check
          Gate::before(function($user, $ability) {
 
             //if user is admin he will be able to perform whats in the array
-            if($user->is_admin && in_array($ability, ['update'])) {
+            if($user->is_admin && in_array($ability, ['update', 'delete'])) {
                 return true;
             }
         });

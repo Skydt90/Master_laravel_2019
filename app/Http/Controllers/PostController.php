@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\BlogPost;
+use App\Comment;
 use App\Http\Requests\StorePost;
+use App\User;
 
 class PostController extends Controller
 {
@@ -19,15 +21,36 @@ class PostController extends Controller
     {
         //return view('posts.index', ['posts' => BlogPost::all()]);
 
-        // comments count for each bp
-        return view('posts.index')->with('posts', BlogPost::withCount('comments')->get());
+        //comment count for each bp
+        return view('posts.index', 
+            [
+                'posts' => BlogPost::latest()->withCount('comments')->get(), 
+                'mostCommented' => BlogPost::mostCommented()->take(2)->get(),
+                'mostActive' => User::withMostBlogPosts()->take(2)->get(),
+                'mostActiveLastMonth' => User::withMostBlogPostsLastMounth()->take(2)->get()
+            ]);
+        
+        //->with('posts', BlogPost::latest()->withCount('comments')->get(), 'mostCommented', BlogPost::mostCommented()->take(5)->get());
+    
     }
 
 
-    public function show($id)
+    public function show(BlogPost $post)
     {
-        return view('posts.show')->with('post', BlogPost::with('comments')->findOrFail($id));
-         // ['post' => BlogPost::findOrFail($id)]);
+        //1: When passing id
+        /* //fetch blogpost with related comments (closure modifies query)
+        return view('posts.show')
+            ->with('post', BlogPost::with(['comments' => function($query) {
+                return $query->latest();
+            }])
+            ->findOrFail($id)); */
+        
+        //2: Object model binding - loading only the comments, since model is already present    
+        $post->comments = Comment::latest()
+            ->where('blog_post_id', $post->id)
+            ->get();
+
+        return view('posts.show')->with('post', $post);   
     }
 
 
@@ -40,6 +63,10 @@ class PostController extends Controller
     public function store(StorePost $request)
     {
         $data = $request->validated();
+
+        //adding user id to data array using user method on request, 
+        //which fetches current authenticated user
+        $data['user_id'] = $request->user()->id;
  
         if($post = BlogPost::create($data)) {
             session()->flash('success', 'Post was created!');

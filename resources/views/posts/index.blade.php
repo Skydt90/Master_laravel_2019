@@ -1,68 +1,116 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- <h2>Blog Posts</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>Content</th>
-        <th>Show</th>
-        <th>Edit</th>
-        <th>Delete</th>
-        <th>Comment Count</th>
-    </tr>
-    @forelse ($posts as $post)
-            <tr>
-                <td>{{ $post->id }}</td>
-                <td>{{ $post->title }}</td>
-                <td>{{ $post->content }}</td>
-                <td><a href="{{ route('post.show', ['post' => $post->id]) }}" class="btn btn-primary">show</a></td>
-                <td><a href="{{ route('post.edit', ['post' => $post->id]) }}" class="btn btn-primary">edit</a></td>
-                <td><form method="POST" class="fm-inline" action="{{ route('post.destroy', ['post' => $post->id]) }}">
-                    @csrf
-                    @method('DELETE')
-                    <input type="submit" class="btn btn-danger" value="delete">
-                </form></td>
-                @if ($post->comments_count)
-                    <td>{{ $post->comments_count }}</td>
+<div class="row">
+    <div class="col-8">
+        <h1>Blog Posts</h1>
+        @forelse ($posts as $post)
+            <p>
+                <h3>
+                    @if($post->trashed())
+                        <del>
+                    @endif
+                        <a class="{{ $post->trashed() ? 'text-muted' : '' }}"
+                            href="{{ route('post.show', ['post' => $post->id]) }}">{{ $post->title }}</a>
+                    @if($post->trashed())
+                        </del>  
+                    @endif
+                </h3>
+
+                <p class="text-muted">
+                    <strong>Added:</strong> {{ $post->created_at->diffForHumans() }}<br>
+                    <strong>By:</strong> {{ $post->user->name }}
+                </p>
+
+                @if($post->comments_count)
+                    <p>{{ $post->comments_count }} comments</p>
                 @else
-                    <td>No Comments Yet</td>
+                    <p>No comments yet!</p>
                 @endif
-                @empty
-                <p>No posts yet!</p>    
-            </tr>
-        </table>
-    @endforelse --}}
+                
+                @can('update', $post) 
+                <a href="{{ route('post.edit', ['post' => $post->id]) }}"
+                    class="btn btn-primary">
+                    Edit
+                </a>
+                @endcan
 
-
-    @forelse ($posts as $post)
-        <p>
-            <h3>
-                <a href="{{ route('post.show', ['post' => $post->id]) }}">{{ $post->title }}</a>
-            </h3>
-            <p class="text-muted">
-                <strong>Added:</strong> {{ $post->created_at->diffForHumans() }}<br>
-                <strong>By:</strong> {{ $post->user->name }}
+                @if (!$post->trashed())
+                    @can('delete', $post)
+                        <form method="POST" class="fm-inline"
+                            action="{{ route('post.destroy', ['post' => $post->id]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <input type="submit" value="Delete!" class="btn btn-danger"/>
+                        </form>
+                    @endcan
+                @endif  
             </p>
-            @if($post->comments_count)
-                <p>{{ $post->comments_count }} comments</p>
-            @else
-                <p>No comments yet!</p>
-            @endif
-            <a href="{{ route('post.edit', ['post' => $post->id]) }}"
-                class="btn btn-primary">
-                Edit
-            </a>
-            <form method="POST" class="fm-inline"
-                action="{{ route('post.destroy', ['post' => $post->id]) }}">
-                @csrf
-                @method('DELETE')
-                <input type="submit" value="Delete!" class="btn btn-primary"/>
-            </form>
-        </p>
-    @empty
-        <p>No posts yet!</p>
-    @endforelse    
+        @empty
+            <p>No posts yet!</p>
+        @endforelse
+    </div>
+    <div class="col-4">
+        <div class="container">
+            <div class="row">
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Most Commented
+                        </h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            What people are currently talking about
+                        </h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach($mostCommented as $post)
+                            <li class="list-group-item">
+                                <a href="{{ route('post.show', ['post' => $post->id]) }}"> {{$post->title}} </a>    
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Most Active
+                        </h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            Users with most posts
+                        </h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach($mostActive as $user)
+                            <li class="list-group-item">
+                                {{$user->name}}   
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Most Active Last Month
+                        </h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            Users with most posts written in the last month
+                        </h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach($mostActiveLastMonth as $user)
+                            <li class="list-group-item">
+                                {{$user->name}}   
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>       
 @endsection
 

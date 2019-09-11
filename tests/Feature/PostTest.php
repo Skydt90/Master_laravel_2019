@@ -83,7 +83,8 @@ class PostTest extends TestCase
     public function testUpdatePost()
     {
          // Arrange
-         $post = $this->createDummyBlogPost();
+         $user = $this->user();
+         $post = $this->createDummyBlogPost($user->id);
 
          $this->assertDatabaseHas('blog_posts', $post->toArray());
 
@@ -92,7 +93,7 @@ class PostTest extends TestCase
             'content' => 'some new content for testing'
         ];
 
-        $this->actingAs($this->user())
+        $this->actingAs($user)
             ->put("/post/{$post->id}", $params)
             ->assertStatus(302)     // redirect status
             ->assertSessionHas('success');
@@ -110,11 +111,12 @@ class PostTest extends TestCase
 
     public function testDelete()
     {
-        $post = $this->createDummyBlogPost();
+        $user = $this->user();
+        $post = $this->createDummyBlogPost($user->id);
         
         $this->assertDatabaseHas('blog_posts', $post->toArray());
 
-        $this->actingAs($this->user())
+        $this->actingAs($user)
             ->delete("/post/{$post->id}")
             ->assertStatus(302)     // redirect status
             ->assertSessionHas('success');
@@ -125,7 +127,7 @@ class PostTest extends TestCase
 
     }
 
-    private function createDummyBlogPost(): BlogPost
+    private function createDummyBlogPost($userID = null): BlogPost
     {
         
         /* $post = new BlogPost();
@@ -133,7 +135,10 @@ class PostTest extends TestCase
         $post->content = 'Content of test blog post';
         $post->save(); */
 
-        return factory(BlogPost::class)->states('test-post')->create();
+        return factory(BlogPost::class)->states('test-post')->create(
+            [
+                'user_id' => $userID ?? $this->user()->id,
+            ]);
 
         //return $post;
     }
