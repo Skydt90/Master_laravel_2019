@@ -1,21 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Post Info</h1>
-    <p><strong>Title:</strong> {{ $post->title }}</p>
+    <h2>
+        <strong>Title:</strong> {{ $post->title }}
+        @badge(['show' => now()->diffInMinutes($post->created_at) < 3])
+            New post!
+        @endbadge
+    </h2>
     <p><strong>Content:</strong> {{ $post->content }}</p>
-    <p><strong>Created at:</strong> {{ $post->created_at }}</p>
-    <p><strong>Time since creation:</strong> {{ $post->created_at->diffForHumans() }}</p>
-    <p><strong>Updated at:</strong> {{ $post->updated_at }}</p>
-    
-    @if ((new Carbon\Carbon())->diffInMinutes($post->created_at) < 5 )
-        <strong>New Post!</strong>
-    @endif
+    @updated(['date' => $post->created_at, 'name' => $post->user->name])
+    @endupdated
+    @updated(['date' => $post->updated_at])
+        Updated 
+    @endupdated
     
     <h4>Comments</h4>
     @forelse ($post->comments as $comment)
         <p>{{ $comment->content }}</p>
-        <p class="text-muted">Added: {{ $comment->created_at->diffForHumans() }}</p>
+        @updated(['date' => $comment->created_at])
+        @endupdated
     @empty
         <p>No Comments yet!</p>
     @endforelse
