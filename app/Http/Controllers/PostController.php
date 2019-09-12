@@ -24,7 +24,7 @@ class PostController extends Controller
         //comment count for each bp
         return view('posts.index', 
             [
-                'posts' => BlogPost::latest()->withCount('comments')->get(), 
+                'posts' => BlogPost::latest()->withCount('comments')->with('user')->get(), 
                 'mostCommented' => BlogPost::mostCommented()->take(2)->get(),
                 'mostActive' => User::withMostBlogPosts()->take(2)->get(),
                 'mostActiveLastMonth' => User::withMostBlogPostsLastMounth()->take(2)->get()
