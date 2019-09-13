@@ -25,7 +25,6 @@
                 @else
                     <p>No comments yet!</p>
                 @endif
-                
 
                 @auth
                     @can('update', $post) 

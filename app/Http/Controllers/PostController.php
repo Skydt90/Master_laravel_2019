@@ -6,6 +6,7 @@ use App\BlogPost;
 use App\Comment;
 use App\Http\Requests\StorePost;
 use App\User;
+use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -21,13 +22,27 @@ class PostController extends Controller
     {
         //return view('posts.index', ['posts' => BlogPost::all()]);
 
+        //store most commented in cache for 10 seconds.
+        $mostCommented = Cache::remember('most-commented-blog-posts', now()->addSeconds(10), function () {
+            return BlogPost::mostCommented()->take(3)->get();
+        });
+
+        //store 30 mins
+        $mostActive = Cache::remember('users-most-active', 30, function () {
+            return User::withMostBlogPosts()->take(3)->get();
+        });
+
+        $mostActviveLastMonth = Cache::remember('users-most-active-last-month', now()->addSeconds(10), function () {
+            return User::withMostBlogPostsLastMonth()->take(3)->get();
+        });
+
         //comment count for each bp
         return view('posts.index', 
             [
                 'posts' => BlogPost::latest()->withCount('comments')->with('user')->get(), 
-                'mostCommented' => BlogPost::mostCommented()->take(2)->get(),
-                'mostActive' => User::withMostBlogPosts()->take(2)->get(),
-                'mostActiveLastMonth' => User::withMostBlogPostsLastMounth()->take(2)->get()
+                'mostCommented' => $mostCommented,
+                'mostActive' => $mostActive,
+                'mostActiveLastMonth' => $mostActviveLastMonth
             ]);
         
         //->with('posts', BlogPost::latest()->withCount('comments')->get(), 'mostCommented', BlogPost::mostCommented()->take(5)->get());
@@ -37,20 +52,64 @@ class PostController extends Controller
 
     public function show(BlogPost $post)
     {
-        //1: When passing id
-        /* //fetch blogpost with related comments (closure modifies query)
+       /*//1: When passing id
+        //fetch blogpost with related comments (closure modifies query)
         return view('posts.show')
             ->with('post', BlogPost::with(['comments' => function($query) {
                 return $query->latest();
             }])
-            ->findOrFail($id)); */
+            ->findOrFail($post->id)); */
         
-        //2: Object model binding - loading only the comments, since model is already present    
+        /* //2: Object model binding - loading only the comments, since model is already present    
         $post->comments = Comment::latest()
             ->where('blog_post_id', $post->id)
             ->get();
+        */ 
 
-        return view('posts.show')->with('post', $post);   
+        
+        //caching
+        $blogPost = Cache::remember("blog-post-{$post->id}", 30, function () use ($post) {
+            return BlogPost::with('comments')->findOrFail($post->id);
+        });
+
+        $counter = 0;
+        $sessionId = session()->getId();
+        $counterKey = "blog-post-{$post->id}-counter";
+        $usersKey = "blog-post-{$post->id}-users";
+
+        $users = Cache::get($usersKey, []);
+        $usersUpdate = [];
+        $difference = 0;
+        $now = now();
+
+        foreach($users as $session => $lastVisit) {
+            if($now->diffInMinutes($lastVisit) >= 1) {
+                $difference--;
+            } else {
+                $usersUpdate[$session] = $lastVisit;
+            }
+        }
+
+        if(!array_key_exists($sessionId, $users) || $now->diffInMinutes($users[$sessionId]) >= 1) {
+            $difference++;
+        }
+
+        $usersUpdate[$sessionId] = $now;
+
+        Cache::forever($usersKey, $usersUpdate);
+
+        if(!Cache::has($counterKey)) {
+            Cache::forever($counterKey, 1);
+        } else {
+            Cache::increment($counterKey, $difference);
+        }
+
+        $counter = Cache::get($counterKey);
+
+        return view('posts.show', [
+                'post' => $blogPost,
+                'counter' => $counter,
+            ]);  
     }
 
 

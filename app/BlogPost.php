@@ -7,6 +7,7 @@ use App\Scopes\LatestScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class BlogPost extends Model
 {
@@ -47,6 +48,11 @@ class BlogPost extends Model
         //adding LatestScope global class to blogpost, 
         //to always order by latest entry.
         //static::addGlobalScope(new LatestScope());
+
+        //setting updating callback to clear cache
+        static::updating(function(BlogPost $post) {
+            Cache::forget("blog-post-{$post->id}");
+        });
     }
     
     //adding local scope to model.
