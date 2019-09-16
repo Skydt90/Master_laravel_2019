@@ -13,8 +13,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        // 'App\Model' => 'App\Policies\ModelPolicy',
-        'App\BlogPost' => 'App\Policies\BlogPostPolicy'
+        'App\BlogPost' => 'App\Policies\BlogPostPolicy',
+        'App\User' => 'App\Policies\UserPolicy'
     ];
 
     /**
@@ -38,7 +38,7 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
-        // like routes, the resource call will group all funtions together in the post policy class
+        // like routes, the resource call will group all functions together in the post policy class
         //Gate::resource('post', 'App\Policies\BlogPostPolicy');
 
         /* Gate::define('post.update', 'App\Policies\BlogPostPolicy@update');

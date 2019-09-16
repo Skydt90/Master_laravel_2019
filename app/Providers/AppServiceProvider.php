@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Http\ViewComposers\ActivityComposer;
 use App\Services\CounterService;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Schema::defaultStringLength(191);
+        
         // adding an alias to blade component badge
         Blade::component('components.badge', 'badge');
         Blade::component('components.updated', 'updated');
