@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\ViewComposers\ActivityComposer;
 use App\Services\CounterService;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('components.updated', 'updated');
         Blade::component('components.card', 'card');
         Blade::component('components.tags', 'tags');
+
+        //using a viewcomposer to create similar data to multiple views
+        view()->composer(['posts.index', 'posts.show'], ActivityComposer::class);
+        //view()->composer('*', ActivityComposer::class); //available data in all views example
 
         //service container config
         $this->app->singleton(CounterService::class, function ($app) {
