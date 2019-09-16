@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('components.updated', 'updated');
         Blade::component('components.card', 'card');
         Blade::component('components.tags', 'tags');
+        Blade::component('components.errors', 'errors');
 
         //using a viewcomposer to create similar data to multiple views
         view()->composer(['posts.index', 'posts.show'], ActivityComposer::class);

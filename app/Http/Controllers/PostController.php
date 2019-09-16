@@ -23,13 +23,8 @@ class PostController extends Controller
         //return view('posts.index', ['posts' => BlogPost::all()]);
 
         //comment count for each bp
-        return view('posts.index', 
-            [
-                'posts' => BlogPost::latest()
-                    ->withCount('comments')
-                    ->with('user')
-                    ->with('tags')
-                    ->get(), 
+        return view('posts.index', [
+                'posts' => BlogPost::latestWithRelations()->get()
             ]);
         
         //->with('posts', BlogPost::latest()->withCount('comments')->get(), 'mostCommented', BlogPost::mostCommented()->take(5)->get());
@@ -56,7 +51,11 @@ class PostController extends Controller
         
         //caching
         $blogPost = Cache::remember("blog-post-{$post->id}", 30, function () use ($post) {
-            return BlogPost::with('comments')->with('tags')->with('user')->findOrFail($post->id);
+            return BlogPost::with('comments', 'tags', 'user', 'comments.user')
+                /* ->with('tags')
+                ->with('user')
+                ->with('comments.user') */ //fetching comments and the user relation of the comment itself
+                ->findOrFail($post->id);
         });
 
         return view('posts.show', [

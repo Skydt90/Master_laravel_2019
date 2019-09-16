@@ -19,7 +19,7 @@ class BlogPost extends Model
     //relationship setup
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class)->latest();
     }
 
     public function user()
@@ -43,6 +43,7 @@ class BlogPost extends Model
         //setting up delete with callback to remove related comments to post.
         static::deleting(function(BlogPost $post) {
             $post->comments()->delete();
+            Cache::forget("blog-post-{$post->id}");
         });
 
         //setting up restore callback to restore soft deleted comments related to post.
@@ -61,8 +62,7 @@ class BlogPost extends Model
     }
     
     //adding local scope to model.
-    //start with scope end with prefix on scope class to be used
-    //i.e LatestScope = scopeLatest
+    //prefix with scope
     public function scopeLatest(Builder $query)
     {
         return $query->orderBy(static::CREATED_AT, 'desc');
@@ -72,5 +72,13 @@ class BlogPost extends Model
     {
         // comments_count
         return $query->withCount('comments')->orderBy('comments_count', 'desc');
+    }
+
+    public function scopeLatestWithRelations(Builder $query)
+    {
+        return $query->latest()
+            ->withCount('comments')
+            ->with('user')
+            ->with('tags');
     }
 }
