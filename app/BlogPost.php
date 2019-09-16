@@ -32,6 +32,11 @@ class BlogPost extends Model
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
+    public function image()
+    {
+        return $this->hasOne(Image::class);
+    }
+
     //subscribe to events from HasEvent.php in model.
     //aka deleting/restoring related models using events.
     public static function boot()

@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Create new post</h1>
-    <form method="POST" action="{{ route('post.update', ['post' => $post->id]) }}">
+    <h1>Edit Post</h1>
+    <form method="POST" action="{{ route('post.update', ['post' => $post->id]) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         @include('posts.partials._form')

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\BlogPost;
 use App\Comment;
 use App\Http\Requests\StorePost;
+use App\Image;
 use App\Services\CounterService;
 use App\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -72,7 +74,7 @@ class PostController extends Controller
     public function store(StorePost $request)
     {
         $data = $request->validated();
-
+        
         //adding user id to data array using user method on request, 
         //which fetches current authenticated user
         $data['user_id'] = $request->user()->id;
@@ -80,6 +82,12 @@ class PostController extends Controller
         if($post = BlogPost::create($data)) {
             session()->flash('success', 'Post was created!');
         }
+
+        if($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('thumbnails');
+            $post->image()->save(Image::create(['path' => $path]));
+        };
+
         return redirect()->route('post.show', ['post' => $post->id]);
     }
 
@@ -100,6 +108,19 @@ class PostController extends Controller
         $post = BlogPost::findOrFail($id);
         $data = $request->validated();
         $post->fill($data);
+
+        if($request->hasFile('thumbnail')) {
+            
+            $path = $request->file('thumbnail')->store('thumbnails');
+            
+            if($post->image) {
+                Storage::delete($post->image->path);
+                $post->image->path = $path;
+                $post->image->save();
+            } else {
+                $post->image()->save(Image::create(['path' => $path]));
+            }
+        };
 
         if($post->save()) {
             session()->flash('success', 'Post was updated successfully!');
