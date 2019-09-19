@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Users;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUser;
+use Illuminate\Http\Request;
 use App\Image;
 use App\User;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {

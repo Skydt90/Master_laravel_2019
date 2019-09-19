@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Posts;
 
 use App\BlogPost;
 use App\Http\Requests\StoreComment;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class PostCommentController extends Controller
 {

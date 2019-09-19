@@ -15,12 +15,12 @@ Route::get('/', 'HomeController@home')->name('home'); //->middleWare('auth');
 Route::get('/contact', 'HomeController@contact')->name('contact');
 Route::get('/secret', 'HomeController@secret')->name('secret')->middleware('can:home.secret');
 
-Route::resource('post', 'PostController'); //->middleWare('auth');
-Route::resource('post.comments', 'PostCommentController')->only(['store']);
-Route::resource('user', 'UserController')->only(['show', 'edit', 'update']);
-Route::resource('user.comments', 'UserCommentController')->only(['store']);
+Route::resource('post', 'Posts\PostController'); //->middleWare('auth');
+Route::resource('post.comments', 'Posts\PostCommentController')->only(['store']);
+Route::get('/posts/tag/{tag}', 'Posts\PostTagController@index')->name('post.tags.index');
 
-Route::get('/posts/tag/{tag}', 'PostTagController@index')->name('post.tags.index');
 
+Route::resource('user', 'Users\UserController')->only(['show', 'edit', 'update']);
+Route::resource('user.comments', 'Users\UserCommentController')->only(['store']);
 
 Auth::routes();

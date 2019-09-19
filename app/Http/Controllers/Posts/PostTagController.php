@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Posts;
 
 use App\Tag;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class PostTagController extends Controller
 {

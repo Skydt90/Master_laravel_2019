@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Posts;
 
 use App\BlogPost;
 use App\Comment;
@@ -10,6 +10,7 @@ use App\Services\CounterService;
 use App\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Controller;
 
 class PostController extends Controller
 {
