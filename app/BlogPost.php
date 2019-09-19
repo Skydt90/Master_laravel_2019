@@ -3,7 +3,8 @@
 namespace App;
 
 use App\Scopes\DeletedAdminScope;
-use App\Scopes\LatestScope;
+
+use App\Traits\Taggable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 
 class BlogPost extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Taggable;
 
     //fields able to be filled by eleqouent create method
     protected $fillable = ['title', 'content', 'user_id'];
@@ -27,10 +28,11 @@ class BlogPost extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function tags()
+    //this functionality is being implementied via taggable trait
+   /*  public function tags()
     {
-        return $this->belongsToMany(Tag::class)->withTimestamps();
-    }
+        return $this->morphToMany(Tag::class, 'taggable')->withTimestamps();
+    } */
 
     public function image()
     {

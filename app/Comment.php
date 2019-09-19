@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\Taggable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Comment extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Taggable;
 
     protected $fillable = [
         'user_id',
@@ -24,13 +25,19 @@ class Comment extends Model
 
     public function commentable()
     {
-        return $this->morphTo();
+        return $this->morphTo('commentable');
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    //this functionality is being implementied via taggable trait
+    /* public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable')->withTimestamps();
+    } */
 
 
     //local scopes
