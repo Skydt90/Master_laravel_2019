@@ -19,7 +19,7 @@ class BlogPost extends Model
     //relationship setup
     public function comments()
     {
-        return $this->hasMany(Comment::class)->latest();
+        return $this->morphMany(Comment::class, 'commentable')->latest();
     }
 
     public function user()

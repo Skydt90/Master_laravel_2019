@@ -1,12 +1,19 @@
-@extends('layouts.app')
+@extends('layout')
 
 @section('content')
     <div class="row">
         <div class="col-4">
-            <img src="" alt="img-thumbnail avatar">
+            <img src="{{ $user->image ? $user->image->getUrl() : '' }}"
+                class="img-thumbnail avatar" />
         </div>
         <div class="col-8">
             <h3>{{ $user->name }}</h3>
-        </div> 
+
+            @commentForm(['route' => route('user.comments.store', ['user' => $user->id])])
+            @endcommentForm
+
+            @commentList(['comments' => $user->commentsOn])
+            @endcommentList
+        </div>
     </div>
 @endsection

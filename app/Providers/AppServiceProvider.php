@@ -31,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
         
         // adding an alias to blade component badge
         Blade::component('components.badge', 'badge');
+        Blade::component('components.comment-form', 'commentForm');
+        Blade::component('components.comment-list', 'commentList');
         Blade::component('components.updated', 'updated');
         Blade::component('components.card', 'card');
         Blade::component('components.tags', 'tags');

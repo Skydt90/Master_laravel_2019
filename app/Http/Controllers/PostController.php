@@ -80,12 +80,12 @@ class PostController extends Controller
         $data['user_id'] = $request->user()->id;
  
         if($post = BlogPost::create($data)) {
-            session()->flash('success', 'Post was created!');
+            session()->flash('status', 'Post was created!');
         }
 
         if($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('thumbnails');
-            $post->image()->save(Image::create(['path' => $path]));
+            $post->image()->save(Image::make(['path' => $path]));
         };
 
         return redirect()->route('post.show', ['post' => $post->id]);
@@ -118,12 +118,12 @@ class PostController extends Controller
                 $post->image->path = $path;
                 $post->image->save();
             } else {
-                $post->image()->save(Image::create(['path' => $path]));
+                $post->image()->save(Image::make(['path' => $path]));
             }
         };
 
         if($post->save()) {
-            session()->flash('success', 'Post was updated successfully!');
+            session()->flash('status', 'Post was updated successfully!');
         }
         return redirect()->route('post.show', ['post' => $post->id]);
     }
@@ -133,7 +133,7 @@ class PostController extends Controller
         $this->authorize('delete', $post);
 
         if(BlogPost::destroy($post->id)) {
-            session()->flash('success', 'Post was deleted!');
+            session()->flash('status', 'Post was deleted!');
         }
 
         return redirect()->route('post.index');

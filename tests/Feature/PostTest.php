@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\BlogPost;
 use App\Comment;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PostTest extends TestCase
@@ -38,9 +37,15 @@ class PostTest extends TestCase
     public function testSee1BlogPostWithComments()
     {
         // Arrange
+        $user = $this->user();
         $post = $this->createDummyBlogPost();
+
         // second param = amount of objects
-        factory(Comment::class, 4)->create(['blog_post_id' => $post->id]);
+        factory(Comment::class, 4)->create([
+            'commentable_id' => $post->id,
+            'commentable_type' => BlogPost::class,
+            'user_id' => $user->id
+            ]);
 
          // Act
          $response = $this->actingAs($this->user())->get('/post');
@@ -58,9 +63,9 @@ class PostTest extends TestCase
         $this->actingAs($this->user())
             ->post('/post', $params)
             ->assertStatus(302) // redirect status
-            ->assertSessionHas('success');
+            ->assertSessionHas('status');
 
-        $this->assertEquals(session('success'), 'Post was created!');
+        $this->assertEquals(session('status'), 'Post was created!');
     }
 
     public function testStoreFail()
@@ -96,9 +101,9 @@ class PostTest extends TestCase
         $this->actingAs($user)
             ->put("/post/{$post->id}", $params)
             ->assertStatus(302)     // redirect status
-            ->assertSessionHas('success');
+            ->assertSessionHas('status');
 
-        $this->assertEquals(session('success'), 'Post was updated successfully!');
+        $this->assertEquals(session('status'), 'Post was updated successfully!');
 
         $this->assertDatabaseMissing('blog_posts', $post->toArray()); // looking at original post to confirm that it's missing
 
@@ -119,9 +124,9 @@ class PostTest extends TestCase
         $this->actingAs($user)
             ->delete("/post/{$post->id}")
             ->assertStatus(302)     // redirect status
-            ->assertSessionHas('success');
+            ->assertSessionHas('status');
 
-        $this->assertEquals(session('success'), 'Post was deleted!');
+        $this->assertEquals(session('status'), 'Post was deleted!');
         //$this->assertDatabaseMissing('blog_posts', $post->toArray());
         $this->assertSoftDeleted('blog_posts', $post->toArray());
 

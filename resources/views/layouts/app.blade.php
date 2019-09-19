@@ -32,10 +32,10 @@
 
     
     <div class="container">
-        @if (session()->has('success'))
+        @if (session()->has('status'))
 
         <p style="color:green">
-            {{ session()->get('success') }}
+            {{ session()->get('status') }}
         </p>
         
     @endif

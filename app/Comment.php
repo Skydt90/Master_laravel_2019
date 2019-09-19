@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Scopes\LatestScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,9 +17,14 @@ class Comment extends Model
     ];
 
     //relationships
-    public function blogPost()
+    /* public function blogPost()
     {
         return $this->belongsTo(BlogPost::class);
+    } */
+
+    public function commentable()
+    {
+        return $this->morphTo();
     }
 
     public function user()
@@ -42,8 +46,12 @@ class Comment extends Model
         parent::boot();
 
         static::creating(function (Comment $comment) {
-            Cache::forget("blog-post-{$comment->blog_post_id}");
-            Cache::forget("mostCommented");
+
+            if($comment->commentable_type === BlogPost::class) {
+                
+                Cache::forget("blog-post-{$comment->commentable_id}");
+                Cache::forget("mostCommented");
+            }
         });
 
         //adding LatestScope global class to blogpost, 

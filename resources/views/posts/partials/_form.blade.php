@@ -8,7 +8,6 @@
 </div>
 <div class="form-group">
     <label for="title">Thumbnail</label>
-    <img src="{{ null !== $post->image ? $post->image->getUrl() : '' }}" alt="Image related to post" style="width:100px; height:100px;">
     <input type="file" name="thumbnail" class="form-control-file">
 </div>
 @errors 
