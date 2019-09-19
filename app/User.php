@@ -52,6 +52,18 @@ class User extends Authenticatable
         ->orderBy('blog_posts_count', 'desc');
     }
 
+    //fetches all users that has commented on the post
+    public function scopeThatHasCommentedOnPost(Builder $query, BlogPost $post)
+    {
+        //closure since comment can be both BlogPost and User
+        return $query->whereHas('comments', function($query) use ($post) {
+            
+            return $query->where('commentable_id', '=',  $post->id)
+                ->where('commentable_type', '=', BlogPost::class);
+            
+        });
+    }
+
     /**
      * The attributes that should be hidden for arrays.
      *
