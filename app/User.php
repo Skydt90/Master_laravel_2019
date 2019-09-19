@@ -2,9 +2,7 @@
 
 namespace App;
 
-use Egulias\EmailValidator\Warning\Comment;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
