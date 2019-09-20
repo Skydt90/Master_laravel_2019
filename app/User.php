@@ -10,6 +10,12 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    public const LOCALES = [
+        'en' => 'English',
+        'es' => 'Español',
+        'de' => 'Deutsch'
+    ];
+
     //fields able to be filled by eleqouent create method
     protected $fillable = [
         'name', 'email', 'password',
