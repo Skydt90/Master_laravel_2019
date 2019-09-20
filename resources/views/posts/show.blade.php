@@ -21,8 +21,6 @@
         @endif
         <p><strong>Content:</strong> {{ $post->content }}</p>
 
-        {{-- <img src="{{ null !== $post->image ? $post->image->getUrl() : '' }}" alt="Image related to post"> --}}
-
         @updated(['date' => $post->created_at, 'name' => $post->user->name])
         @endupdated
         @updated(['date' => $post->updated_at])

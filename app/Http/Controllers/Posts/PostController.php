@@ -3,65 +3,47 @@
 namespace App\Http\Controllers\Posts;
 
 use App\BlogPost;
+use App\Contracts\CounterContract;
 use App\Events\BlogPostPosted;
 use App\Http\Requests\StorePost;
 use App\Image;
-use App\Services\CounterService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 
 class PostController extends Controller
 {
+    private $counterService;
     
-    public function __construct()
+    public function __construct(CounterContract $counterService)
     {
         //$this->middleware('auth', ['only' => 'index']);
+        $this->counterService = $counterService;
         $this->middleware('auth');
     }
 
     public function index()
     {
-        //return view('posts.index', ['posts' => BlogPost::all()]);
-
         return view('posts.index', [
                 'posts' => BlogPost::latestWithRelations()->get()
             ]);
-        
         //->with('posts', BlogPost::latest()->withCount('comments')->get(), 'mostCommented', BlogPost::mostCommented()->take(5)->get());
     }
 
     public function show(BlogPost $post)
     {
-       /*//1: When passing id
-        //fetch blogpost with related comments (closure modifies query)
-        return view('posts.show')
-            ->with('post', BlogPost::with(['comments' => function($query) {
-                return $query->latest();
-            }])
-            ->findOrFail($post->id)); */
-        
-        /* //2: Object model binding - loading only the comments, since model is already present    
-        $post->comments = Comment::latest()
-            ->where('blog_post_id', $post->id)
-            ->get();
-        */ 
-
         //instantiating via service container resolve
-        $counterService = resolve(CounterService::class);
+        //$counterService = resolve(CounterService::class);
         
         //caching
         $blogPost = Cache::remember("blog-post-{$post->id}", 30, function () use ($post) {
-            return BlogPost::with('comments', 'tags', 'user', 'comments.user')
-                /* ->with('tags')
-                ->with('user')
-                ->with('comments.user') */ //fetching comments and the user relation of the comment itself
+            return BlogPost::with('comments', 'tags', 'user', 'comments.user') //fetching comments and the user relation of the comment itself
                 ->findOrFail($post->id);
         });
 
         return view('posts.show', [
                 'post' => $blogPost,
-                'counter' => $counterService->getCurrentUserViewCount("blog-post-{$post->id}")
+                'counter' => $this->counterService->getCurrentUserViewCount("blog-post-{$post->id}")
             ]);  
     }
 
@@ -128,6 +110,7 @@ class PostController extends Controller
         }
         return redirect()->route('post.show', ['post' => $post->id]);
     }
+
 
     public function destroy(BlogPost $post)
     {

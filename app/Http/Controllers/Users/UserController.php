@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Users;
 
+use App\Contracts\CounterContract;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUser;
 use Illuminate\Http\Request;
@@ -10,11 +11,13 @@ use App\User;
 
 class UserController extends Controller
 {
+    private $counterService;
 
-    public function __construct()
+    public function __construct(CounterContract $counterService)
     {
         $this->middleware('auth');
         $this->authorizeResource(User::class, 'user');
+        $this->counterService = $counterService;
     }
     
 
@@ -38,7 +41,11 @@ class UserController extends Controller
     
     public function show(User $user)
     {
-        return view('users.show', ['user' => $user]);
+        //$counterService = resolve(CounterService::class);
+
+        return view('users.show', [
+            'user' => $user, 
+            'counter' => $this->counterService->getCurrentUserViewCount("user-{$user->id}")]);
     }
 
     

@@ -11,7 +11,6 @@ use App\Observers\BlogPostObserver;
 use App\Observers\CommentObserver;
 
 use App\Services\CounterService;
-
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -55,8 +54,15 @@ class AppServiceProvider extends ServiceProvider
 
         //service container config
         $this->app->singleton(CounterService::class, function ($app) {
-            return new CounterService(env('COUNTER_TIMEOUT'));
+            return new CounterService(
+                $app->make('Illuminate\Contracts\Cache\Factory'),
+                $app->make('Illuminate\Contracts\Session\Session'),
+                env('COUNTER_TIMEOUT'));
         });
+
+        //if this contract is requested, then instantiate the CounterService class.
+        $this->app->bind('App\Contracts\CounterContract', CounterService::class);
+        //$this->app->when(CounterService::class)->needs('$timeout')->give(env('COUNTER_TIMEOUT'));
 
     }
 }

@@ -2,29 +2,34 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Cache;
+use App\Contracts\CounterContract;
+use Illuminate\Contracts\Cache\Factory as Cache;
+use Illuminate\Contracts\Session\Session;
 
-class CounterService 
+class CounterService implements CounterContract
 {
-
     private $timeout;
+    private $cache;
+    private $session;
 
-    public function __construct(int $timeout)
+    public function __construct(Cache $cache, Session $session, int $timeout)
     {
+        $this->session = $session;
+        $this->cache = $cache;
         $this->timeout = $timeout;
     }
 
     public function getCurrentUserViewCount(string $key) : int
     {
-        $sessionId = session()->getId();
+        $sessionId = $this->session->getId();
         $counterKey = "{$key}-counter";
         $usersKey = "{$key}-users";
         
-        $users = Cache::get($usersKey, []);
+        $users = $this->cache->get($usersKey, []);
         $usersUpdate = [];
         $difference = 0;
         $now = now();
-
+       
         foreach($users as $session => $lastVisit) {
             if($now->diffInMinutes($lastVisit) >= $this->timeout) {
                 $difference--;
@@ -39,14 +44,14 @@ class CounterService
 
         $usersUpdate[$sessionId] = $now;
 
-        Cache::forever($usersKey, $usersUpdate);
+        $this->cache->forever($usersKey, $usersUpdate);
 
-        if(!Cache::has($counterKey)) {
-            Cache::forever($counterKey, $this->timeout);
+        if(!$this->cache->has($counterKey)) {
+            $this->cache->forever($counterKey, 1);
         } else {
-            Cache::increment($counterKey, $difference);
+            $this->cache->increment($counterKey, $difference);
         }
 
-        return Cache::get($counterKey);
+        return $this->cache->get($counterKey);
     }
 }
