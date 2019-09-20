@@ -6,7 +6,6 @@ use App\Traits\Taggable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
 class Comment extends Model
 {
@@ -39,31 +38,9 @@ class Comment extends Model
         return $this->morphToMany(Tag::class, 'taggable')->withTimestamps();
     } */
 
-
     //local scopes
     public function scopeLatest(Builder $query)
     {
         $query->orderBy(static::CREATED_AT, 'desc');
     }
-
-    
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::creating(function (Comment $comment) {
-
-            if($comment->commentable_type === BlogPost::class) {
-                
-                Cache::forget("blog-post-{$comment->commentable_id}");
-                Cache::forget("mostCommented");
-            }
-        });
-
-        //adding LatestScope global class to blogpost, 
-        //to always order by latest entry.
-        //static::addGlobalScope(new LatestScope);
-    }
-
 }

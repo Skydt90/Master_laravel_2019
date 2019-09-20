@@ -2,8 +2,16 @@
 
 namespace App\Providers;
 
+use App\BlogPost;
+use App\Comment;
+
 use App\Http\ViewComposers\ActivityComposer;
+
+use App\Observers\BlogPostObserver;
+use App\Observers\CommentObserver;
+
 use App\Services\CounterService;
+
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -40,11 +48,15 @@ class AppServiceProvider extends ServiceProvider
 
         //using a viewcomposer to create similar data to multiple views
         view()->composer(['posts.index', 'posts.show'], ActivityComposer::class);
-        //view()->composer('*', ActivityComposer::class); //available data in all views example
+        
+        //setting up observer classes
+        BlogPost::observe(BlogPostObserver::class);
+        Comment::observe(CommentObserver::class);
 
         //service container config
         $this->app->singleton(CounterService::class, function ($app) {
             return new CounterService(env('COUNTER_TIMEOUT'));
         });
+
     }
 }

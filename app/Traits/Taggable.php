@@ -6,7 +6,7 @@ use App\Tag;
 
 trait Taggable 
 {
-    //asigning events to all models using trait
+    //assigning events to all models using trait
     protected static function bootTaggable()
     {
         //calling tags on model, adding new manytomany with sync having all the tags returned by function

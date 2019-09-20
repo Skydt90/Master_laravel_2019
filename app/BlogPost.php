@@ -8,7 +8,6 @@ use App\Traits\Taggable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
 class BlogPost extends Model
 {
@@ -28,8 +27,8 @@ class BlogPost extends Model
         return $this->belongsTo(User::class);
     }
 
-    //this functionality is being implementied via taggable trait
-   /*  public function tags()
+    //this functionality is now being implementied via taggable trait
+    /*  public function tags()
     {
         return $this->morphToMany(Tag::class, 'taggable')->withTimestamps();
     } */
@@ -39,33 +38,19 @@ class BlogPost extends Model
         return $this->morphOne(Image::class, 'imageable');
     }
 
-    //subscribe to events from HasEvent.php in model.
-    //aka deleting/restoring related models using events.
     public static function boot()
     {
-        static::addGlobalScope(new DeletedAdminScope());
-        
+        static::addGlobalScope(new DeletedAdminScope);
         parent::boot();
 
-        //setting up delete with callback to remove related comments to post.
-        static::deleting(function(BlogPost $post) {
-            $post->comments()->delete();
-            Cache::forget("blog-post-{$post->id}");
-        });
-
-        //setting up restore callback to restore soft deleted comments related to post.
-        static::restoring(function(BlogPost $post) {
-            $post->comments()->restore();
-        });
+        /*
+        //  This model has event listeners, which will execute when model is called
+        //  They exist inside the BlogPostObserver class. Can also be put here.
+        */
 
         //adding LatestScope global class to blogpost, 
         //to always order by latest entry.
-        //static::addGlobalScope(new LatestScope());
-
-        //setting updating callback to clear cache
-        static::updating(function(BlogPost $post) {
-            Cache::forget("blog-post-{$post->id}");
-        });
+        //static::addGlobalScope(new LatestScope);
     }
     
     //adding local scope to model.

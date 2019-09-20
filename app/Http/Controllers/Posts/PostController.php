@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Posts;
 
 use App\BlogPost;
-use App\Comment;
+use App\Events\BlogPostPosted;
 use App\Http\Requests\StorePost;
 use App\Image;
 use App\Services\CounterService;
-use App\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
@@ -25,7 +24,6 @@ class PostController extends Controller
     {
         //return view('posts.index', ['posts' => BlogPost::all()]);
 
-        //comment count for each bp
         return view('posts.index', [
                 'posts' => BlogPost::latestWithRelations()->get()
             ]);
@@ -88,6 +86,8 @@ class PostController extends Controller
             $path = $request->file('thumbnail')->store('thumbnails');
             $post->image()->save(Image::make(['path' => $path]));
         };
+
+        event(new BlogPostPosted($post));
 
         return redirect()->route('post.show', ['post' => $post->id]);
     }

@@ -11,7 +11,6 @@ use App\User;
 class ActivityComposer 
 {
 
-
     public function compose(View $view)
     {
         //store most commented in cache for 10 seconds.

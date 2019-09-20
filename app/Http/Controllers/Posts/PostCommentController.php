@@ -3,12 +3,9 @@
 namespace App\Http\Controllers\Posts;
 
 use App\BlogPost;
+use App\Events\CommentPosted;
 use App\Http\Requests\StoreComment;
 use App\Http\Controllers\Controller;
-use App\Jobs\NotifyUsersPostWasCommented;
-use App\Mail\CommentPosted;
-use App\Mail\CommentPostedMarkdown;
-use Illuminate\Support\Facades\Mail;
 
 class PostCommentController extends Controller
 {
@@ -26,14 +23,8 @@ class PostCommentController extends Controller
             'user_id' => $request->user()->id
         ]);
 
-        $whenToProcess = now()->addMinutes(1);
-
-        /* Mail::to($post->user)->send(new CommentPostedMarkdown($comment)); */
-        Mail::to($post->user)->queue(new CommentPostedMarkdown($comment));
-        /* Mail::to($post->user)->later($whenToProcess, new CommentPostedMarkdown($comment)); */
-
-        //calling a custom job class with the static dispatch
-        NotifyUsersPostWasCommented::dispatch($comment);
+        //calling custom event to notify users via email.
+        event(new CommentPosted($comment));
 
         return redirect()->back()->withStatus('Comment was Created!');
     }
