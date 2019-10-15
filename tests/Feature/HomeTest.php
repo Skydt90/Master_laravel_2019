@@ -9,13 +9,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class HomeTest extends TestCase
 {
     
-    public function testHomePageIsDisplayingWords()
+    /* public function testHomePageIsDisplayingWords()
     {
         $response = $this->get('/');
 
         $response->assertSeeText('Welcome to Laravel');
         $response->assertSeeText('This is the content of main page');
-    }
+    } */
 
     public function testContactWorkingCorrectly()
     {

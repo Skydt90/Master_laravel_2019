@@ -20,7 +20,7 @@ Route::get('/secret', 'HomeController@secret')->name('secret')->middleware('can:
 
 //Post routes
 Route::resource('post', 'Posts\PostController'); //->middleWare('auth');
-Route::resource('post.comments', 'Posts\PostCommentController')->only(['store']);
+Route::resource('post.comments', 'Posts\PostCommentController')->only(['store', 'index']);
 Route::get('/posts/tag/{tag}', 'Posts\PostTagController@index')->name('post.tags.index');
 
 //User routes

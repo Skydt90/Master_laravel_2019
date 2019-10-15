@@ -16,6 +16,13 @@ class Comment extends Model
         'content'
     ];
 
+    protected $hidden = [
+        'deleted_at',
+        'commentable_type',
+        'commentable_id',
+        'user_id'
+    ];
+
     //relationships
     /* public function blogPost()
     {

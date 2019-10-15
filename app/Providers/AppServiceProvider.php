@@ -14,6 +14,8 @@ use App\Services\CounterService;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use App\Http\Resources\Comment as CommentResource;
+use Illuminate\Http\Resources\Json\Resource;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -64,5 +66,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind('App\Contracts\CounterContract', CounterService::class);
         //$this->app->when(CounterService::class)->needs('$timeout')->give(env('COUNTER_TIMEOUT'));
 
+        //CommentResource::withoutWrapping(); //removes 'data' wrapping on the commentresource
+        Resource::withoutWrapping(); //removes 'data' wrapping on all resources
     }
 }
